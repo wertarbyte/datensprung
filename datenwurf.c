@@ -4,6 +4,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#include "decoder.h"
 
 struct rcpin_t {
 	uint8_t max;
@@ -27,6 +28,11 @@ static int8_t get_tri_state(void) {
 	} else {
 		return (dch.current - dch.min < center - dch.current) ? -1 : 0;
 	}
+}
+
+static void serial_write(char c) {
+	while (!(UCSRA & (1 << UDRE)));
+	UDR = c;
 }
 
 int main(void) {
@@ -59,6 +65,14 @@ int main(void) {
 				PORTD &= ~(1<<PD4|1<<PD5);
 				PORTD |= 1<<PD3;
 				break;
+		}
+		decoder_feed(state);
+		if (decoder_complete()) {
+			uint8_t b = decoder_get();
+			decoder_reset();
+			serial_write(':');
+			serial_write(b);
+			serial_write('\n');
 		}
 	}
 }
