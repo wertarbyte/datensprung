@@ -78,35 +78,37 @@ int main(void) {
 
 	sei();
 	while (1) {
+		static int8_t last_state = 0;
 		/* reset timeout counter? */
 		if (decoder_timeout) {
 			decoder_reset();
 			decoder_timeout = 0;
+			/* if we are stuck on the low level, the calibration might be off */
+			if (last_state == -1) {
+				dch.max = 0;
+				dch.min = UINT8_MAX;
+			}
 #if RESET_DEBUG
 			serial_write('\n');
 			serial_write('R');
 			serial_write('\n');
 #endif
 		}
-		static int8_t last_state = 0;
 		int8_t state = get_tri_state();
+		/* if we detect a level change, we do not have to reset */
+		if (state != last_state) postpone_reset();
 		switch (state) {
 			case -1:
 				PORTD &= ~(1<<PD3|1<<PD4);
 				PORTD |= 1<<PD5;
-				postpone_reset();
-				// if (last_state != state) serial_write('-');
 				break;
 			case 0:
 				PORTD &= ~(1<<PD3|1<<PD5);
 				PORTD |= 1<<PD4;
-				// if (last_state != state) serial_write('N');
 				break;
 			case 1:
 				PORTD &= ~(1<<PD4|1<<PD5);
 				PORTD |= 1<<PD3;
-				postpone_reset();
-				//if (last_state != state) serial_write('+');
 				break;
 		}
 		last_state = state;
