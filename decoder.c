@@ -1,19 +1,22 @@
 #include <decoder.h>
 
-#define BUFFER_BITS 8
+#define BUFFER_SIZE sizeof(struct datenwurf_packet_t)
+#define BUFFER_BITS (BUFFER_SIZE*8)
 
-static uint8_t buffer = 0;
+static struct datenwurf_packet_t buffer = {0};
 static uint8_t buffer_pos = 0;
 static uint8_t buffer_completed = 0;
 
 static int8_t last_state = 0;
 
 static void shift_bit(int8_t val) {
+	uint8_t *bbuf = (uint8_t*)&buffer;
 	buffer_completed = 0;
+	uint8_t *b = &bbuf[buffer_pos/8];
 	if (val) {
-		buffer |= 1<<buffer_pos;
+		*b |= 1<<(buffer_pos%8);
 	} else {
-		buffer &= ~(1<<buffer_pos);
+		*b &= ~(1<<(buffer_pos%8));
 	}
 	buffer_completed = (buffer_pos == BUFFER_BITS-1);
 	buffer_pos = (buffer_pos+1)%BUFFER_BITS;
@@ -21,7 +24,6 @@ static void shift_bit(int8_t val) {
 
 void decoder_reset(void) {
 	buffer_completed = 0;
-	buffer = 0;
 	buffer_pos = 0;
 	last_state = 0;
 }
@@ -43,6 +45,6 @@ uint8_t decoder_complete(void) {
 	return buffer_completed;
 }
 
-uint8_t decoder_get(void) {
-	return buffer;
+struct datenwurf_packet_t *decoder_get(void) {
+	return &buffer;
 }

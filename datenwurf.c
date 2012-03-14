@@ -41,6 +41,15 @@ static void postpone_reset(void) {
 	TCNT1 = 0;
 }
 
+static void process_packet(struct datenwurf_packet_t *p) {
+	switch (p->cmd) {
+		case 0xF0: /* print character */
+			serial_write(p->data);
+			serial_write('\n');
+			break;
+	}
+}
+
 int main(void) {
 	DDRD = (1<<PD5|1<<PD4|1<<PD3);
 	UCSRB = (1<<RXEN | 1<<TXEN);
@@ -97,11 +106,9 @@ int main(void) {
 		last_state = state;
 		decoder_feed(state);
 		if (decoder_complete()) {
-			uint8_t b = decoder_get();
+			struct datenwurf_packet_t *p = decoder_get();
+			process_packet(p);
 			decoder_reset();
-			serial_write(':');
-			serial_write(b);
-			serial_write('\n');
 		}
 	}
 }
