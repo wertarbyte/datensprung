@@ -55,8 +55,8 @@ int main(void) {
 	TCCR0B = (1<<CS01|1<<CS00);
 	/* Timer 1 to create a decoder timeout signal (1/100s) */
 	TCCR1A = 1<<WGM12;
-	TCCR1B = 1<<CS01;
-	OCR1A = 0x2710;
+	TCCR1B = 1<<CS11 | 0<<CS10;
+	OCR1A = 0x3D09;
 	TIMSK = 1<<OCIE1A;
 
 	PORTD &= ~(1<<PD5|1<<PD4|1<<PD3);
@@ -67,25 +67,34 @@ int main(void) {
 		if (decoder_timeout) {
 			decoder_reset();
 			decoder_timeout = 0;
+#if DEBUG
+			serial_write('\n');
+			serial_write('R');
+			serial_write('\n');
+#endif
 		}
-
+		static int8_t last_state = 0;
 		int8_t state = get_tri_state();
 		switch (state) {
 			case -1:
 				PORTD &= ~(1<<PD3|1<<PD4);
 				PORTD |= 1<<PD5;
 				postpone_reset();
+				// if (last_state != state) serial_write('-');
 				break;
 			case 0:
 				PORTD &= ~(1<<PD3|1<<PD5);
 				PORTD |= 1<<PD4;
+				// if (last_state != state) serial_write('N');
 				break;
 			case 1:
 				PORTD &= ~(1<<PD4|1<<PD5);
 				PORTD |= 1<<PD3;
 				postpone_reset();
+				//if (last_state != state) serial_write('+');
 				break;
 		}
+		last_state = state;
 		decoder_feed(state);
 		if (decoder_complete()) {
 			uint8_t b = decoder_get();
