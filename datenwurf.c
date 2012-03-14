@@ -42,6 +42,12 @@ static void postpone_reset(void) {
 }
 
 static void process_packet(struct datenwurf_packet_t *p) {
+	static uint8_t last_seq = UINT8_MAX;
+	/* does the checksum work out? */
+	if (p->chk != ( (p->seq)^(p->cmd)^(p->data) )) return;
+	/* have we already seen the packet? */
+	if (p->seq == last_seq) return;
+	last_seq = p->seq;
 	switch (p->cmd) {
 		case 0xF0: /* print character */
 			serial_write(p->data);
