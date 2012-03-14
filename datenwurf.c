@@ -82,7 +82,7 @@ int main(void) {
 		if (decoder_timeout) {
 			decoder_reset();
 			decoder_timeout = 0;
-#if DEBUG
+#if RESET_DEBUG
 			serial_write('\n');
 			serial_write('R');
 			serial_write('\n');
