@@ -29,8 +29,8 @@ void decoder_reset(void) {
 }
 
 void decoder_feed(int8_t state) {
-	/* if we are dropping back to neutral, check the last state */
-	if (state == 0) {
+	/* if we are changing the state, memorize the last bit */
+	if (state != last_state) {
 		if (last_state == 1) {
 			shift_bit(1);
 		} else if (last_state == -1) {
