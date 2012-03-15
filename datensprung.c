@@ -83,7 +83,8 @@ int main(void) {
 	PORTD &= ~(1<<PD5|1<<PD4|1<<PD3);
 
 	sei();
-	struct ds_frame_t pbuf = {0};
+	/* buffer for the current frame */
+	struct ds_frame_t pbuf;
 	while (1) {
 		static int8_t last_state = 0;
 		/* reset timeout counter? */

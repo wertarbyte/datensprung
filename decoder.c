@@ -9,7 +9,7 @@
 #define FRAME_BITS (sizeof(struct ds_frame_t)*8)
 
 /* ring buffer and positions for reader and writer */
-static struct ds_frame_t buffer[BUFFER_FRAMES] = {{0}};
+static struct ds_frame_t buffer[BUFFER_FRAMES];
 static uint8_t w_pos = 0;
 static uint8_t r_pos = 0;
 /* bit position inside the current frame */
