@@ -86,8 +86,8 @@ int main(void) {
 		if (decoder_timeout) {
 			decoder_reset();
 			decoder_timeout = 0;
-			/* if we are stuck on the low level, the calibration might be off */
-			if (last_state == -1) {
+			/* if we are stuck on the low/high level, the calibration might be off */
+			if (last_state != 0) {
 				dch.max = 0;
 				dch.min = UINT8_MAX;
 			}
