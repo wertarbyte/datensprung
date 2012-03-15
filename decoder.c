@@ -1,9 +1,11 @@
-#include <decoder.h>
+#include <stdint.h>
+#include "ds_frame.h"
+#include "decoder.h"
 
-#define BUFFER_SIZE sizeof(struct datensprung_packet_t)
+#define BUFFER_SIZE sizeof(struct ds_frame_t)
 #define BUFFER_BITS (BUFFER_SIZE*8)
 
-static struct datensprung_packet_t buffer = {0};
+static struct ds_frame_t buffer = {0};
 static uint8_t buffer_pos = 0;
 static uint8_t buffer_completed = 0;
 
@@ -45,6 +47,6 @@ uint8_t decoder_complete(void) {
 	return buffer_completed;
 }
 
-struct datensprung_packet_t *decoder_get(void) {
+struct ds_frame_t *decoder_get(void) {
 	return &buffer;
 }

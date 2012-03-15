@@ -1,9 +1,11 @@
 #include <stdlib.h>
+#include <stdint.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#include "ds_frame.h"
 #include "decoder.h"
 
 struct rcpin_t {
@@ -41,7 +43,7 @@ static void postpone_reset(void) {
 	TCNT1 = 0;
 }
 
-static void process_packet(struct datensprung_packet_t *p) {
+static void process_packet(struct ds_frame_t *p) {
 	static uint8_t last_seq = UINT8_MAX;
 	/* does the checksum work out? */
 	if (p->chk != ( (p->seq)^(p->cmd)^(p->data) )) return;
@@ -114,7 +116,7 @@ int main(void) {
 		last_state = state;
 		decoder_feed(state);
 		if (decoder_complete()) {
-			struct datensprung_packet_t *p = decoder_get();
+			struct ds_frame_t *p = decoder_get();
 			process_packet(p);
 			decoder_reset();
 		}
