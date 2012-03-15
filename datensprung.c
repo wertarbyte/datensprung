@@ -14,13 +14,13 @@ struct rcpin_t {
 	uint8_t current;
 };
 
-static volatile struct rcpin_t dch = {0};
+static volatile struct rcpin_t dch;
 /* this variable is flagged when anough time has passed to reset the decoder */
 static volatile uint8_t decoder_timeout = 0;
 
 static void set_duration(uint8_t duration) {
 	/* auto-calibrate */
-	if (duration < dch.min || dch.min == 0) dch.min = duration;
+	if (duration < dch.min) dch.min = duration;
 	if (duration > dch.max) dch.max = duration;
 	dch.current = duration;
 }
@@ -41,6 +41,12 @@ static void serial_write(char c) {
 
 static void postpone_reset(void) {
 	TCNT1 = 0;
+}
+
+static void reset_calibration(void) {
+	dch.min = UINT8_MAX;
+	dch.current = UINT8_MAX/2;
+	dch.max = 0;
 }
 
 static void process_packet(struct ds_frame_t *p) {
@@ -82,6 +88,8 @@ int main(void) {
 
 	PORTD &= ~(1<<PD5|1<<PD4|1<<PD3);
 
+	reset_calibration();
+
 	sei();
 	/* buffer for the current frame */
 	struct ds_frame_t pbuf;
@@ -93,8 +101,7 @@ int main(void) {
 			decoder_timeout = 0;
 			/* if we are stuck on the low/high level, the calibration might be off */
 			if (last_state != 0) {
-				dch.max = 0;
-				dch.min = UINT8_MAX;
+				reset_calibration();
 			}
 #if RESET_DEBUG
 			serial_write('\n');
@@ -105,17 +112,15 @@ int main(void) {
 		int8_t state = get_tri_state();
 		/* if we detect a level change, we do not have to reset */
 		if (state != last_state) postpone_reset();
+		PORTD &= ~(1<<PD3|1<<PD4|1<<PD5);
 		switch (state) {
 			case -1:
-				PORTD &= ~(1<<PD3|1<<PD4);
 				PORTD |= 1<<PD5;
 				break;
 			case 0:
-				PORTD &= ~(1<<PD3|1<<PD5);
 				PORTD |= 1<<PD4;
 				break;
 			case 1:
-				PORTD &= ~(1<<PD4|1<<PD5);
 				PORTD |= 1<<PD3;
 				break;
 		}
