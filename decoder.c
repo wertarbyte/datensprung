@@ -57,7 +57,3 @@ uint8_t decoder_get_frame(struct ds_frame_t *t) {
 		return 0;
 	}
 }
-
-struct ds_frame_t *decoder_get(void) {
-	return &buffer;
-}
