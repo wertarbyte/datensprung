@@ -79,6 +79,7 @@ int main(void) {
 	PORTD &= ~(1<<PD5|1<<PD4|1<<PD3);
 
 	sei();
+	struct ds_frame_t pbuf = {0};
 	while (1) {
 		static int8_t last_state = 0;
 		/* reset timeout counter? */
@@ -115,10 +116,8 @@ int main(void) {
 		}
 		last_state = state;
 		decoder_feed(state);
-		if (decoder_complete()) {
-			struct ds_frame_t *p = decoder_get();
-			process_packet(p);
-			decoder_reset();
+		if (decoder_get_frame(&pbuf)) {
+			process_packet(&pbuf);
 		}
 	}
 }

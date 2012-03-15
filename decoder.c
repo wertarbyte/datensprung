@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 #include "ds_frame.h"
 #include "decoder.h"
 
@@ -45,6 +46,16 @@ void decoder_feed(int8_t state) {
 uint8_t decoder_complete(void) {
 	/* do we have a complete byte? */
 	return buffer_completed;
+}
+
+uint8_t decoder_get_frame(struct ds_frame_t *t) {
+	if (buffer_completed) {
+		memcpy(t, &buffer, sizeof(*t));
+		decoder_reset();
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 struct ds_frame_t *decoder_get(void) {
