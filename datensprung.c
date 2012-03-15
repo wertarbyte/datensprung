@@ -41,7 +41,7 @@ static void postpone_reset(void) {
 	TCNT1 = 0;
 }
 
-static void process_packet(struct datenwurf_packet_t *p) {
+static void process_packet(struct datensprung_packet_t *p) {
 	static uint8_t last_seq = UINT8_MAX;
 	/* does the checksum work out? */
 	if (p->chk != ( (p->seq)^(p->cmd)^(p->data) )) return;
@@ -114,7 +114,7 @@ int main(void) {
 		last_state = state;
 		decoder_feed(state);
 		if (decoder_complete()) {
-			struct datenwurf_packet_t *p = decoder_get();
+			struct datensprung_packet_t *p = decoder_get();
 			process_packet(p);
 			decoder_reset();
 		}
