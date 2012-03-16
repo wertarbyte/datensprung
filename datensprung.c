@@ -61,9 +61,11 @@ static void process_packet(struct ds_frame_t *p) {
 	if (p->seq == last_seq) return;
 	last_seq = p->seq;
 	switch (p->cmd) {
-		case 0xF0: /* print character */
-			serial_write(p->data[0]);
-			serial_write('\n');
+		case 0xF0: /* print characters */
+			for (uint8_t i=0; i<DS_FRAME_PAYLOAD_SIZE && p->data[i]; i++) {
+				serial_write(p->data[i]);
+			}
+			// serial_write('\n');
 			break;
 	}
 }
