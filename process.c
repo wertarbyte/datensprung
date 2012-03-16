@@ -25,8 +25,9 @@ static void cmd_serial_string(struct ds_frame_t *p) {
 static void cmd_output_pins(struct ds_frame_t *p) {
 	/* switch output pins */
 	uint8_t levels = p->data[0]; // set these pins to high
-	/* we use the entire PB-Register */
-	PORTB = levels;
+	uint8_t mask = p->data[1]; // only change these pins
+	PORTB |= (levels & mask);
+	PORTB &= (~mask | levels);
 }
 
 void process_packet(struct ds_frame_t *p) {
