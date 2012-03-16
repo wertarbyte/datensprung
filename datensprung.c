@@ -8,6 +8,8 @@
 #include "ds_cmd.h"
 #include "ds_frame.h"
 #include "decoder.h"
+#include "process.h"
+#include "serial.h"
 
 struct rcpin_t {
 	uint8_t max;
@@ -35,11 +37,6 @@ static int8_t get_tri_state(void) {
 	}
 }
 
-static void serial_write(char c) {
-	while (!(UCSRA & (1 << UDRE)));
-	UDR = c;
-}
-
 static void postpone_reset(void) {
 	TCNT1 = 0;
 }
@@ -48,29 +45,6 @@ static void reset_calibration(void) {
 	dch.min = UINT8_MAX;
 	dch.current = UINT8_MAX/2;
 	dch.max = 0;
-}
-
-static void process_packet(struct ds_frame_t *p) {
-	static uint8_t last_str_seq = UINT8_MAX;
-	/* does the checksum work out? */
-	uint8_t calc = (p->cmd);
-	for (uint8_t i=0; i<DS_FRAME_PAYLOAD_SIZE; i++) {
-		calc ^= p->data[i];
-	}
-	if (p->chk != calc) return;
-	switch (p->cmd) {
-		case DS_CMD_SERIAL_STRING: /* print characters */
-			/* this opertion is not idem-potent, so we filter out retransmissions
-			 * by using a sequence number as first byte of the payload
-			 */
-			if (p->data[0] == last_str_seq) break;
-			last_str_seq = p->data[0];
-			for (uint8_t i=1; i<DS_FRAME_PAYLOAD_SIZE && p->data[i]; i++) {
-				serial_write(p->data[i]);
-			}
-			// serial_write('\n');
-			break;
-	}
 }
 
 int main(void) {
