@@ -5,6 +5,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#include "ds_cmd.h"
 #include "ds_frame.h"
 #include "decoder.h"
 
@@ -58,7 +59,7 @@ static void process_packet(struct ds_frame_t *p) {
 	}
 	if (p->chk != calc) return;
 	switch (p->cmd) {
-		case 0xF0: /* print characters */
+		case DS_CMD_SERIAL_STRING: /* print characters */
 			/* this opertion is not idem-potent, so we filter out retransmissions
 			 * by using a sequence number as first byte of the payload
 			 */
