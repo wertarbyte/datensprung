@@ -50,19 +50,21 @@ static void reset_calibration(void) {
 }
 
 static void process_packet(struct ds_frame_t *p) {
-	static uint8_t last_seq = UINT8_MAX;
+	static uint8_t last_str_seq = UINT8_MAX;
 	/* does the checksum work out? */
-	uint8_t calc = (p->seq)^(p->cmd);
+	uint8_t calc = (p->cmd);
 	for (uint8_t i=0; i<DS_FRAME_PAYLOAD_SIZE; i++) {
 		calc ^= p->data[i];
 	}
 	if (p->chk != calc) return;
-	/* have we already seen the packet? */
-	if (p->seq == last_seq) return;
-	last_seq = p->seq;
 	switch (p->cmd) {
 		case 0xF0: /* print characters */
-			for (uint8_t i=0; i<DS_FRAME_PAYLOAD_SIZE && p->data[i]; i++) {
+			/* this opertion is not idem-potent, so we filter out retransmissions
+			 * by using a sequence number as first byte of the payload
+			 */
+			if (p->data[0] == last_str_seq) break;
+			last_str_seq = p->data[0];
+			for (uint8_t i=1; i<DS_FRAME_PAYLOAD_SIZE && p->data[i]; i++) {
 				serial_write(p->data[i]);
 			}
 			// serial_write('\n');
