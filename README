@@ -4,7 +4,7 @@ by Stefan Tomanek <stefan@pico.ruhr.de>
 
 What does it do?
 
-"Projekt Datensprung" (Project data-leap) is a software that uses an model
+"Projekt Datensprung" (Project data-leap) is a software that uses a model
 plane remote control to transmit binary data using a single servo channel.
 
 == What can I use it for? ==
