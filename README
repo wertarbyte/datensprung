@@ -1,0 +1,62 @@
+Projekt Datensprung
+
+by Stefan Tomanek <stefan@pico.ruhr.de>
+
+What does it do?
+
+"Projekt Datensprung" (Project data-leap) is a software that uses an model
+plane remote control to transmit binary data using a single servo channel.
+
+== What can I use it for? ==
+
+You can use Datensprung to transmit arbitrary data to your quadcopter or othr
+RC vehicle; use it to change flight mode characteristics, switch LEDs or set
+coordinates in a GPS device. Instead of just using the position of the servo
+channel as the only numeric information, multiple bytes can be transferred.
+
+== What do I need to use it? ==
+
+On your vehicle, integrating the supplied code into most quadcopter setups
+should be simple: the servo values of the used channel are fed into the
+decoder.c functions, which will in turn extract the binary data from this
+stream of servo changes.
+Most (cheap) remote controls can be used with minor modifications: If your RC
+has a potentiometer that directly correlates to a servo channel, connecting
+this to a microcontroller might simply work: the controller will "turn" the
+knob for your, encoding the information.
+
+== How is the data encoded? ==
+
+The Encoding uses three logic levels, represented by the servo positions min,
+max and center/neutral. Data is transferred in frames: each frame is initiated
+by a pause of roughly 100ms with the servo channel resting at the
+center/neutral position. This resets the decoder buffer and makes sure that
+receiver and sender are synchronized. After that, raising the level to the
+maximum value yields a binary 1, while dropping to minimum indicated a binary
+0. Consecutive bits of the same value are indicated by dropping to the neutral
+value. Since this method uses the data signal as its own clock signal, the
+transmission rate can be varied to accommodate the various types of remote
+controls and receivers.
+
+Data is transferred in frames: Each frame consists of a leading command byte,
+indicating the type and intended use of the following data. After that, a
+configurable number of payload bytes follow (default: 5).  All these bytes
+serve as input to a XOR checksum appended to the frame and checked by the
+receiver.  Services that use non-idempotent operations (like adding character
+to an LCD) should use a sequence number in their payload data to detect
+retransmissions and missing frame.
+
+== How fast is the transmission? ==
+
+Transmission throughput is fairly low due to the constraints of the equipment:
+Traditionally, servo information is only polled at 50 Hz. To transmit a single
+bit, two of these phases are needed (change to bit level and back to neutral),
+yielding a theoretical bit rate of 25 bits per second. However, since the
+behaviour of the ADC inside the remote control might be a risk, the time spent
+on each logic level should be increased, so sending a frame of 7 byte (1
+command byte, 5 payload bytes, 1 checksum byte) might need roughly 2.5 seconds.
+This is acceptable for most non-critical purposes. Decreasing the frame size
+might prove beneficial for some applications, however due to the penalty of a
+~100ms pause between each frame, putting more data into a single frame might be
+better for others - especially if retransmissions are needed due to bad
+reception.
