@@ -5,7 +5,6 @@
 
 /* how many frames do we want buffer? */
 #define BUFFER_FRAMES 4
-#define BUFFER_SIZE (4*sizeof(struct ds_frame_t))
 #define FRAME_BITS (sizeof(struct ds_frame_t)*8)
 
 /* ring buffer and positions for reader and writer */
