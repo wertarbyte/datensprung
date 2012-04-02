@@ -47,14 +47,20 @@ static void set_tri_state(int8_t s) {
 static void transmit_byte(uint8_t b) {
 	uint8_t i;
 	for (i=0; i<8; i++) {
-		if (b & 1<<i) {
+		uint8_t x = ((b&(1<<i)) != 0);
+		if (x) {
 			set_tri_state(1);
 		} else {
 			set_tri_state(-1);
 		}
 		_delay_ms(BIT_DELAY);
-		set_tri_state(0);
-		_delay_ms(BIT_DELAY);
+		/* only drop to neutral if the next bit
+		 * is the same
+		 */
+		if (i == 7 || ( (b&(1<<(i+1))) != 0)==x) {
+			set_tri_state(0);
+			_delay_ms(BIT_DELAY);
+		}
 	}
 }
 
