@@ -5,8 +5,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#include "ds_cmd.h"
-#include "ds_frame.h"
+#include "../common/ds_frame.h"
 #include "decoder.h"
 #include "process.h"
 #include "serial.h"

@@ -4,8 +4,8 @@
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 
-#include "ds_cmd.h"
-#include "ds_frame.h"
+#include "../common/ds_cmd.h"
+#include "../common/ds_frame.h"
 #include "process.h"
 #include "serial.h"
 

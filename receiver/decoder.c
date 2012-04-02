@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <string.h>
-#include "ds_frame.h"
+#include "../common/ds_frame.h"
 #include "decoder.h"
 
 /* how many frames do we want buffer? */
