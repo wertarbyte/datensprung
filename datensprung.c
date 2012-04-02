@@ -106,7 +106,10 @@ int main(void) {
 		last_state = state;
 		decoder_feed(state);
 		if (decoder_get_frame(&pbuf)) {
-			process_packet(&pbuf);
+			/* does the checksum work out? */
+			if (decoder_verify_frame(&pbuf)) {
+				process_packet(&pbuf);
+			}
 		}
 	}
 }

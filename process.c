@@ -31,12 +31,6 @@ static void cmd_output_pins(struct ds_frame_t *p) {
 }
 
 void process_packet(struct ds_frame_t *p) {
-	/* does the checksum work out? */
-	uint8_t calc = (p->cmd);
-	for (uint8_t i=0; i<DS_FRAME_PAYLOAD_SIZE; i++) {
-		calc ^= p->data[i];
-	}
-	if (p->chk != calc) return;
 	switch (p->cmd) {
 		case DS_CMD_SERIAL_STRING: /* print characters */
 			cmd_serial_string(p);
