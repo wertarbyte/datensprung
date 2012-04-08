@@ -9,7 +9,7 @@ plane remote control to transmit binary data using a single servo channel.
 
 == What can I use it for? ==
 
-You can use Datensprung to transmit arbitrary data to your quadcopter or othr
+You can use Datensprung to transmit arbitrary data to your quadcopter or other
 RC vehicle; use it to change flight mode characteristics, switch LEDs or set
 coordinates in a GPS device. Instead of just using the position of the servo
 channel as the only numeric information, multiple bytes can be transferred.
